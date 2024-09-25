@@ -13,12 +13,12 @@ suite('Functional Tests', function () {
       chai
         .request(server)
         .get('/api/stock-prices')
-        .set("content-type","application/json")
-        .query({ stock: 'TSLA' }) // Example stock
+        .query({ stock: 'TSLA' })
         .end(function (err, res) {
           assert.equal(res.status, 200);
-          assert.equal(res.body.stockData.stock, 'TSLA');
+          assert.equal('TSLA', res.body.stockData.stock);
           assert.exists(res.body.stockData.price, "TSLA has a price");
+          assert.exists(res.body.stockData.likes, "TSLA has likes count");
           done();
         });
     });
@@ -28,29 +28,27 @@ suite('Functional Tests', function () {
       chai
         .request(server)
         .get('/api/stock-prices')
-        .set("content-type","application/json")
         .query({ stock: 'GOOG', like: true })
         .end(function (err, res) {
           assert.equal(res.status, 200);
-          assert.equal(res.body.stockData.stock, 'GOLD');
-          assert.equal(res.body.stockData.stock, 1);
-          assert.exists(res.body.stockData.price, "GOLD has a price");
+          assert.equal('GOOG', res.body.stockData.stock);
+          assert.equal(1, res.body.stockData.likes);
+          assert.exists(res.body.stockData.price, "GOOG has a price");
           done();
         });
     });
 
-    // Test 3: Viewing the same stock and liking it again (should not increase like count if the same IP is used)
+    // Test 3: Viewing the same stock and liking it again (should not increase like count)
     test('Viewing the same stock and liking it again: GET request to /api/stock-prices/', function (done) {
         chai
         .request(server)
         .get('/api/stock-prices')
-        .set("content-type","application/json")
         .query({ stock: 'GOOG', like: true })
         .end(function (err, res) {
           assert.equal(res.status, 200);
-          assert.equal(res.body.stockData.stock, 'GOLD');
-          assert.equal(res.body.stockData.stock, 1);
-          assert.exists(res.body.stockData.price, "GOLD has a price");
+          assert.equal('GOOG', res.body.stockData.stock);
+          assert.equal(1, res.body.stockData.likes);
+          assert.exists(res.body.stockData.price, "GOOG has a price");
           done();
         });
     });
@@ -60,15 +58,15 @@ suite('Functional Tests', function () {
       chai
         .request(server)
         .get('/api/stock-prices')
-        .set("content-type","application/json")
-        .query({ stock: ['AMZN', 'T'] }) // Example stocks
+        .query({ stock: ['AMZN', 'T'] })
         .end(function (err, res) {
           assert.equal(res.status, 200);
-          assert.equal(res.body.stockData[0].stock, "AMZN");
-          assert.equal(res.body.stockData[1].stock,"T");
+          assert.equal('AMZN', res.body.stockData[0].stock);
+          assert.equal('T', res.body.stockData[1].stock);
           assert.exists(res.body.stockData[0].price, "AMZN has a price");
           assert.exists(res.body.stockData[1].price, "T has a price");
-          
+          assert.exists(res.body.stockData[0].rel_likes, "AMZN has rel_likes");
+          assert.exists(res.body.stockData[1].rel_likes, "T has rel_likes");
           done();
         });
     });
@@ -78,16 +76,15 @@ suite('Functional Tests', function () {
       chai
         .request(server)
         .get('/api/stock-prices')
-        .set("content-type","application/json")
         .query({ stock: ['AMZN', 'T'], like: true })
         .end(function (err, res) {
           assert.equal(res.status, 200);
-          assert.equal(res.body.stockData[0].stock, "AMZN");
-          assert.equal(res.body.stockData[1].stock,"T");
+          assert.equal('AMZN', res.body.stockData[0].stock);
+          assert.equal('T', res.body.stockData[1].stock);
           assert.exists(res.body.stockData[0].price, "AMZN has a price");
           assert.exists(res.body.stockData[1].price, "T has a price");
-          assert.exists(res.body.stockData[0].rel_likes, "has rel_likes");
-          assert.exists(res.body.stockData[1].rel_likes,"has rel_likes");
+          assert.exists(res.body.stockData[0].rel_likes, "AMZN has rel_likes");
+          assert.exists(res.body.stockData[1].rel_likes, "T has rel_likes");
           done();
         });
     });
